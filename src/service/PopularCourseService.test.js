@@ -9,6 +9,7 @@ describe('test service PopularCourseService', () => {
         PopularCourseService.singleton = undefined
         mockFetch.mockClear()
     })
+
     test('測試getSingleton的回傳值, singleton 的狀態變化', () => {
         expect(undefined).toEqual(PopularCourseService.singleton)
         const isEqual = PopularCourseService.getSingleton() === PopularCourseService.getSingleton()
@@ -23,18 +24,22 @@ describe('test service PopularCourseService', () => {
     }) 
 
     test('測試fatchData 成功和失敗後 popularCourseData和dataState 的狀態變化', async () => {
-        mockFetch.mockReturnValueOnce(Promise.resolve([true, 'test'])).mockReturnValueOnce([false, []])
+        mockFetch
+            .mockReturnValueOnce(Promise.resolve([true, 'test']))
+            .mockReturnValueOnce(Promise.resolve([false, 'fail']))
         const testClass = new PopularCourseService()
 
         // 第一次成功
         await testClass.fatchData()
         expect(testClass.popularCourseData).toEqual('test')
         expect(testClass.dataState).toEqual('SUCCESS')
+        expect(mockFetch).toBeCalledTimes(1)
 
         // 第二次失敗
         await testClass.fatchData()
-        expect(testClass.popularCourseData).toEqual([])
+        expect(testClass.popularCourseData).toEqual('fail')
         expect(testClass.dataState).toEqual('ERROR')
+        expect(mockFetch).toBeCalledTimes(2)
     })
     
     test('測試getState 的回傳值', async () => {
